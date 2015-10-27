@@ -1,0 +1,23 @@
+<div class="container text-center">
+  <div class="row">
+    <img id="sandra" src="/sandra/<%= @sandra[:img] %>" style="height: 500px; margin-top: 100px" />
+  </div>
+  <div class="row">
+    <p class="lead dialogue"><%= @sandra[:dialogue][(0..@sandra[:dialogue].size-1).to_a.sample] %></p>
+  </div>
+</div>
+
+
+<script>
+  setInterval(function() {
+    $.ajax({
+      url: '/sandra',
+      method: 'GET',
+      success: function(sandra) {
+        var dialogue = sandra.dialogue[Math.floor(Math.random() * sandra.dialogue.length)];
+        $('#dialogue').html(dialogue)
+        $('#sandra').attr('src', '/sandra/' + sandra.img);
+      }
+    })
+  }, 1000)
+</script>
