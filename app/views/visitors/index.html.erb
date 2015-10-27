@@ -14,7 +14,7 @@
       url: '/sandra',
       method: 'GET',
       success: function(sandra) {
-        var dialogue = sandra.dialogue[Math.floor(Math.random() * sandra.dialogue.length)];
+        var dialogue = sandra.dialogue[0];
         $('.dialogue').html(dialogue)
         $('#sandra').attr('src', '/sandra/' + sandra.img);
       }
