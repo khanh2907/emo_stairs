@@ -21,6 +21,9 @@ gem 'font-awesome-rails'
 gem 'parsley-rails'
 gem 'therubyracer'
 
+gem "highcharts-rails", "~> 3.0.0"
+gem 'highstock-rails'
+
 # MQTT
 gem 'mqtt', :git => 'https://github.com/njh/ruby-mqtt.git'
 

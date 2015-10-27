@@ -3,4 +3,6 @@ Rails.application.routes.draw do
   devise_for :users
   resources :users
   get '/sandra', to: 'visitors#sandra'
+
+  get '/statistics', to: 'visitors#statistics'
 end

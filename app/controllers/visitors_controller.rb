@@ -7,18 +7,43 @@ class VisitorsController < ApplicationController
     render json: get_sandra
   end
 
+  def statistics
+    hourly_count = [] # for highcharts data series
+    daily_count = []
+    weekly_count = []
+
+    hour_groups = Reading.where(['created_at >= ?', DateTime.now.beginning_of_day]).order(created_at: :asc).group_by {|r| r.created_at.beginning_of_hour}
+    day_groups = Reading.all.order(created_at: :asc).group_by {|r| r.created_at.beginning_of_day}
+    week_groups = Reading.all.order(created_at: :asc).group_by {|r| r.created_at.beginning_of_week}
+
+    hour_groups.each_key do |h|
+      hourly_count.push([h.to_f * 1000, hour_groups[h].count])
+    end
+
+    day_groups.each_key do |h|
+      daily_count.push([h.to_f * 1000, day_groups[h].count])
+    end
+
+    week_groups.each_key do |h|
+      weekly_count.push([h.to_f * 1000, week_groups[h].count])
+    end
+
+    render json: {hourlyCount: hourly_count, dailyCount: daily_count, weeklyCount: weekly_count}
+
+  end
+
   private
   def get_sandra
-    day_count = Reading.where(['created_at >= ?', DateTime.now.beginning_of_day]).count
-
     hourly_count = Reading.where(['created_at >= ?', 30.seconds.ago]).count
 
-    if day_count == 0
-      return SANDRA[(0..2).to_a.sample]
-    elsif hourly_count > 19
-      return SANDRA[(21..23).to_a.sample]
+    if hourly_count >= 22
+      return SANDRA[22]
     else
-      return SANDRA[hourly_count+2]
+      sandra = SANDRA[hourly_count]
+      if sandra[:img] == 'avatar point.png'
+        sandra[:dialogue] = sandra.dialogue.gsub('%d', Reading.where(['created_at >= ?', DateTime.now.beginning_of_day]).count)
+      end
+      return sandra
     end
   end
 end

@@ -17,10 +17,11 @@
 //= require parsley
 //= require turbolinks
 //= require bootstrap-sprockets
+//= require highstock
+//= require highstock/highcharts-more
 //= require_tree .
 
 function ready() {
-    console.log('Techlab is awesome!')
     // Enable parsley js validation
     $('form[data-validate="parsley"] .btn-primary').on('click', function(e) {
         console.log('validate!')

@@ -5,19 +5,99 @@
   <div class="row">
     <p class="lead dialogue"><%= @sandra[:dialogue][(0..@sandra[:dialogue].size-1).to_a.sample] %></p>
   </div>
+
+  <div id="chart" style="width: 100%;"></div>
+  <a class="btn btn-lg btn-default" id="show-chart" onclick="crunchNumbers()">Crunch them numbers!</a>
 </div>
 
 
 <script>
-  setInterval(function() {
-    $.ajax({
-      url: '/sandra',
-      method: 'GET',
-      success: function(sandra) {
-        var dialogue = sandra.dialogue[0];
-        $('.dialogue').html(dialogue)
-        $('#sandra').attr('src', '/sandra/' + sandra.img);
-      }
-    })
-  }, 1000)
+setInterval(function() {
+  $.ajax({
+    url: '/sandra',
+    method: 'GET',
+    success: function(sandra) {
+      var dialogue = sandra.dialogue[0];
+      $('.dialogue').html(dialogue)
+      $('#sandra').attr('src', '/sandra/' + sandra.img);
+    }
+  })
+}, 1000);
+function crunchNumbers() {
+  $.getJSON('/statistics', function (data) {
+    var chart = new Highcharts.Chart({
+      chart: {
+        renderTo: 'chart',
+        type: 'column',
+        events: {
+          load: function() {
+            $('.btn#show-chart').hide();
+            var hourlySeries = this.series[0];
+            var weeklySeries = this.series[1];
+            var monthlySeries = this.series[2];
+            setInterval(function () {
+              $.getJSON('/statistics', function(updateData) {
+                hourlySeries.setData(updateData.hourlyCount);
+                weeklySeries.setData(updateData.dailyCount);
+                monthlySeries.setData(updateData.weeklyCount);
+              })
+
+
+            }, 1000);
+          }
+        }
+      },
+      title: {
+        text: 'Number of people helping Sandra'
+      },
+      plotOptions: {
+        series: {
+          events: {
+            show: function () {
+              var chart = this.chart,
+              series = chart.series,
+              i = series.length,
+              otherSeries;
+              while (i--) {
+                otherSeries = series[i];
+                if (otherSeries != this && otherSeries.visible) {
+                  otherSeries.hide();
+                }
+              }
+            },
+            legendItemClick: function() {
+              if(this.visible){
+                return false;
+              }
+            }
+          }
+        }
+      },
+      credits: {
+        enabled: false
+      },
+      xAxis: {
+        type: 'datetime'
+      },
+      yAxis: {
+        title: {
+          text: '# of kind-hearted people'
+        }
+      },
+      series: [{
+        name: 'Hourly',
+        data: data.hourlyCount
+      }, {
+        name: 'Daily',
+        data: data.dailyCount,
+        visible: false
+      }, {
+        name: 'Weekly',
+        data: data.weeklyCount,
+        visible: false
+      }]
+
+    });
+  });
+}
 </script>
